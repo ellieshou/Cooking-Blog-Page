@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="final.css">
+    <script src="final.html"></script>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1 style="color: rgb(129, 73, 0);">Cooking Blog</h1>
+        <nav>
+            <img src="img/OIP.jpg" alt="Description of the image" width="300">
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <aside class="sidebar">
+        <h2 style="color: rgb(129, 73, 0);">Categories</h2>
+        <ul>
+            <li><a href="#">Recipes</a></li>
+            <li><a href="#">Articles</a></li>
+        </ul>
+    </aside>
+
+    <div id="posts">
+        <!-- Posts will be dynamically inserted here -->
+    </div>
+
+    <h2>Add New Recipe or Article to our Page! </h2>
+    <form id="postForm" action="/add-post" method="POST">
+        <input type="text" id="title" name="title" placeholder="Title" required>
+        <textarea id="content" name="content" placeholder="Content" required></textarea>
+        <input type="text" id="author" name="author" placeholder="Author" required>
+        <button type="submit">Add Post</button>
+    </form>
+</div>
+
+<footer>
+    <div class="container"></div>
+    <p>&copy; 2024 My Blog</p>
+</footer>
+
+<script>
+    // Function to fetch and display posts from the server
+    function fetchPosts() {
+        fetch('/posts')
+            .then(response => response.json())
+            .then(posts => {
+                const postsContainer = document.getElementById('posts');
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.innerHTML = `
+                        <article>
+                            <h2>${post.title}</h2>
+                            <p>${post.content}</p>
+                            <p>Author: ${post.author}</p>
+                            <p>Created At: ${new Date(post.created_at).toLocaleString()}</p>
+                        </article>
+                    `;
+                    postsContainer.appendChild(postElement);
+                });
+            })
+            .catch(error => console.error('Error fetching posts:', error));
+    }
+
+    // Call fetchPosts function when the page loads
+    window.onload = fetchPosts;
+
+    // Function to submit the form and add a new post
+    document.getElementById('postForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        
+        const formData = new FormData(this);
+        fetch('/add-post', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(message => {
+            console.log(message); // Log the response message
+            fetchPosts(); // Fetch and display posts again after adding a new post
+        })
+        .catch(error => console.error('Error adding post:', error));
+    });
+</script>
+
+</body>
+</html>
